@@ -1,0 +1,1 @@
+#define GEMU_LOG_DISASSEMBLER
