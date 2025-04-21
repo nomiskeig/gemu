@@ -1,0 +1,11 @@
+build/
+CMakeFiles/
+highMemWrites.txt
+instructions.txt
+*.so*
+gemu
+output.txt
+CMakeCache.txt
+cmake_install.cmake
+callGraph.txt
+
