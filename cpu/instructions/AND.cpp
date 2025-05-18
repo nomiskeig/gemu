@@ -1,8 +1,10 @@
 #include "../Instruction.h"
 
-void AND::execute(CPU *cpu) {
+int AND::execute(CPU *cpu) {
+    int cycles = 0;
     switch (this->action) {
     case kANDAN8: {
+            cycles = 2;
         cpu->set_Reg8(kRegA, cpu->get_reg_8(kRegA) & this->val);
         cpu->clearAllFlags();
         if (cpu->get_reg_8(kRegA) == 0x0) {
@@ -16,6 +18,7 @@ void AND::execute(CPU *cpu) {
     default:
         exit_with_error("OR action not implemented");
     }
+    return cycles;
 }
 
 AND::AND(N8 val) {

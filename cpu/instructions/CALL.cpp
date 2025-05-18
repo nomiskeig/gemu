@@ -3,12 +3,13 @@
 #include <sstream>
 #include "../../config.h"
 
-void CALL::execute(CPU *cpu) {
+int CALL::execute(CPU *cpu) {
     PUSH push(this->retAddress);
     push.execute(cpu);
     JP jump(this->address);
     jump.execute(cpu);
-    GEMU_PRINT_CALL_GRAPH("Call 0x%x with return address 0x%x", this->address, this->retAddress );
+   GEMU_PRINT_CALL_GRAPH("Call 0x%x with return address 0x%x", this->address, this->retAddress );
+    return 6;
 };
 
 CALL::CALL(A16 address, A16 retAddress) {

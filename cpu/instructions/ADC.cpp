@@ -1,18 +1,21 @@
 #include "../Instruction.h"
 
-void ADC::execute(CPU *cpu) {
+int ADC::execute(CPU *cpu) {
+    int res = 0;
     Reg8Val other;
     switch (this->action) {
 
     case kADCRegToA: {
         cpu->increasePC(1);
         other = cpu->get_reg_8(this->reg8);
+        res = 1;
         break;
     }
     case kADCN8ToA: {
         cpu->increasePC(2);
         other = this->n8;
-            break;
+        res = 2;
+        break;
     }
     default:
         exit_with_error("ADC action not implemented");
@@ -34,6 +37,7 @@ void ADC::execute(CPU *cpu) {
     if (cpu->get_reg_8(kRegA) == 0x0) {
         cpu->set_flag(kFlagZ);
     }
+    return res;
 }
 
 ADC::ADC(Reg8 reg8) {

@@ -2,7 +2,8 @@
 #include <ios>
 #include <sstream>
 
-void INC::execute(CPU *cpu) {
+int INC::execute(CPU *cpu) {
+    int cycles = 0;
     cpu->increasePC(1);
     switch (this->action) {
     case kINCR8:
@@ -29,6 +30,7 @@ void INC::execute(CPU *cpu) {
     default:
         exit_with_error("INC action not implemented");
     }
+    return 0;
 }
 
 INC::INC(Reg16 reg) {

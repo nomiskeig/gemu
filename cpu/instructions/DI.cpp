@@ -1,8 +1,9 @@
 #include "../Instruction.h"
 
-void DI::execute(CPU *cpu) {
+int DI::execute(CPU *cpu) {
     cpu->disableInterrupts();
     cpu->increasePC(1);
+    return 1;
 
 }
 

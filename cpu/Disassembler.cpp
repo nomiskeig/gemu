@@ -143,6 +143,10 @@ Instruction *Disassembler::getNextInstruction(uint16_t counter) {
     if (value == 0x47) {
         return new LD(kRegToReg,kRegA, kRegB);
     }
+    if (value == 0x50) {
+        return new LD(kRegToReg, kRegB, kRegD);
+
+    }
     if (value == 0x54) {
         return new LD(kRegToReg, kRegH, kRegD);
     }

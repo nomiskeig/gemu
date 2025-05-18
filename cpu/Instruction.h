@@ -31,13 +31,13 @@ class Instruction {
 
   public:
     std::string getTextString();
-    virtual void execute(CPU *cpu) = 0;
+    virtual int execute(CPU *cpu) = 0;
 };
 
 class NOP : public Instruction {
 
   public:
-    void execute(CPU *cpu) override;
+    int execute(CPU *cpu) override;
     NOP();
 };
 enum JPAction { kJPPC, kJPHL };
@@ -48,7 +48,7 @@ class JP : public Instruction {
     JPAction action;
 
   public:
-    void execute(CPU *cpu) override;
+    int execute(CPU *cpu) override;
     JP(ProgramCounter pc);
     JP();
 };
@@ -59,7 +59,7 @@ class CP : public Instruction {
     N8 n8;
 
   public:
-    void execute(CPU *cpu) override;
+    int execute(CPU *cpu) override;
     CP(N8 n8);
 };
 enum JRAction { kJRCond, kJRUncond };
@@ -77,7 +77,7 @@ class JR : public Instruction {
     JRAction action;
 
   public:
-    void execute(CPU *cpu) override;
+    int execute(CPU *cpu) override;
     JR(Flag flag, JRCondType type, E8 offset);
     JR(E8 offset);
 };
@@ -94,7 +94,7 @@ class LD : public Instruction {
     A16 address;
 
   public:
-    void execute(CPU *cpu) override;
+    int execute(CPU *cpu) override;
     LD(LDAction action, Reg8 reg, N8 value);
     LD(LDAction action, Reg16 reg, N16 value);
     LD(LDAction action, Reg8 source, Reg8 dest);
@@ -110,7 +110,7 @@ class CALL : public Instruction {
     A16 retAddress;
 
   public:
-    void execute(CPU *cpu) override;
+    int execute(CPU *cpu) override;
     CALL(A16 address, A16 retAddress);
 };
 enum StackAction { kStackRegister, kStackAddress };
@@ -121,7 +121,7 @@ class PUSH : public Instruction {
     Reg16 reg16;
 
   public:
-    void execute(CPU *cpu) override;
+    int execute(CPU *cpu) override;
     PUSH(A16 address);
     PUSH(Reg16 reg);
 };
@@ -130,7 +130,7 @@ class POP : public Instruction {
     Reg16 reg16;
 
   public:
-    void execute(CPU *cpu) override;
+    int execute(CPU *cpu) override;
     POP(Reg16 reg);
 };
 enum XORAction { kXORReg, kXORHL, kXORN8 };
@@ -140,7 +140,7 @@ class XOR : public Instruction {
     Reg8 reg;
 
   public:
-    void execute(CPU *cpu) override;
+    int execute(CPU *cpu) override;
     XOR(Reg8 reg);
 };
 
@@ -153,7 +153,7 @@ class OR : public Instruction {
     Reg8 reg;
 
   public:
-    void execute(CPU *cpu) override;
+    int execute(CPU *cpu) override;
     OR(Reg8 reg);
 };
 enum ANDAction {
@@ -165,13 +165,13 @@ class AND : public Instruction {
     N8 val;
 
   public:
-    void execute(CPU *cpu) override;
+    int execute(CPU *cpu) override;
     AND(N8 val);
 };
 class DI : public Instruction {
   private:
   public:
-    void execute(CPU *cpu) override;
+    int execute(CPU *cpu) override;
     DI();
 };
 enum LDHAction { kLDHAToAddress, kLDHAddressToA };
@@ -181,7 +181,7 @@ class LDH : public Instruction {
     LDHAction action;
 
   public:
-    void execute(CPU *cpu) override;
+    int execute(CPU *cpu) override;
     LDH(LDHAction action, A8 address);
 };
 
@@ -198,7 +198,7 @@ class RET : public Instruction {
     RETCondType type;
 
   public:
-    void execute(CPU *cpu) override;
+    int execute(CPU *cpu) override;
     RET(Flag flag, RETCondType type);
     RET();
 };
@@ -210,7 +210,7 @@ class DEC : public Instruction {
     DECAction action;
 
   public:
-    void execute(CPU *cpu) override;
+    int execute(CPU *cpu) override;
     DEC(Reg16 reg16);
     DEC(Reg8 reg8);
 };
@@ -222,7 +222,7 @@ class INC : public Instruction {
     INCAction action;
 
   public:
-    void execute(CPU *cpu) override;
+    int execute(CPU *cpu) override;
     INC(Reg16 reg16);
     INC(Reg8 reg8);
 };
@@ -231,7 +231,7 @@ class SRL : public Instruction {
     Reg8 reg;
 
   public:
-    void execute(CPU *cpu) override;
+    int execute(CPU *cpu) override;
     SRL(Reg8 reg);
 };
 enum ADDAction { kADDRegToHL, kADDRegToA, kADDN8ToA };
@@ -243,7 +243,7 @@ class ADD : public Instruction {
     ADDAction action;
 
   public:
-    void execute(CPU *cpu) override;
+    int execute(CPU *cpu) override;
     ADD(Reg16 reg16);
     ADD(Reg8 reg8);
     ADD(N8 n8);
@@ -253,7 +253,7 @@ class RR : public Instruction {
     Reg8 reg;
 
   public:
-    void execute(CPU *cpu) override;
+    int execute(CPU *cpu) override;
     RR(Reg8 reg);
 };
 class STOP : public Instruction {
@@ -261,7 +261,7 @@ class STOP : public Instruction {
     N8 val;
 
   public:
-    void execute(CPU *cpu) override;
+    int execute(CPU *cpu) override;
     STOP(N8 val);
 };
 enum ADCAction { kADCRegToA, kADCN8ToA };
@@ -272,13 +272,13 @@ class ADC : public Instruction {
     ADCAction action;
 
   public:
-    void execute(CPU *cpu) override;
+    int execute(CPU *cpu) override;
     ADC(Reg8 reg);
     ADC(N8 n8);
 };
 class RLCA : public Instruction {
   public:
-    void execute(CPU *cpu) override;
+    int execute(CPU *cpu) override;
 };
 enum SUBAction { kSUBN8ToA };
 class SUB : public Instruction {
@@ -288,10 +288,10 @@ class SUB : public Instruction {
 
   public:
     SUB(N8 n8);
-    void execute(CPU *cpu) override;
+    int execute(CPU *cpu) override;
 };
 class RRA : public Instruction {
   public:
-    void execute(CPU *cpu) override;
+    int execute(CPU *cpu) override;
     RRA();
 };

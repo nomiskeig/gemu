@@ -14,6 +14,8 @@ CPU::CPU(Disassembler *dis) {
     this->audio = new Audio();
     this->memory = (char *)malloc(0xFFFF);
     this->highMem = (char *)malloc(0xFFFF - 0xFF80);
+    this->remainingTicksForInstruction = 0;
+    this->currentInstruction = NULL;
 
     this->af = 0x100;
     this->bc = 0xFF13;
@@ -24,17 +26,21 @@ CPU::CPU(Disassembler *dis) {
 }
 
 void CPU::tick() {
-    Instruction *instr = this->dis->getNextInstruction(this->pc);
-    std::cout << "Instuction is " << instr->getTextString() << "\n";
-
-    ProgramCounter old = this->pc;
-    instr->execute(this);
-    GEMU_PRINT_INSTURUCTIONS("Instruction is %s",
-                             instr->getTextString().c_str());
-    if (old == this->pc) {
-        exit_with_error("Forgot to increase pc");
+    if (this->remainingTicksForInstruction == 0) {
+        this->currentInstruction = this->dis->getNextInstruction(this->pc);
+        std::cout << "Instuction is "
+                  << this->currentInstruction->getTextString() << "\n";
+        this->remainingTicksForInstruction =
+            this->currentInstruction->execute(this);
+        ProgramCounter old = this->pc;
+        GEMU_PRINT_INSTURUCTIONS("Instruction is %s",
+                                 this->currentInstruction->getTextString().c_str());
+        if (old == this->pc) {
+            exit_with_error("Forgot to increase pc");
+        }
+        this->print();
     }
-    this->print();
+    this->remainingTicksForInstruction -= 1;
 }
 void CPU::disableInterrupts() { this->ime = kIMEDisabled; }
 void CPU::increasePC(int amount) { this->pc += amount; }
@@ -290,11 +296,11 @@ void CPU::write_memory(A16 address, N8 val) {
         return;
     }
     if (address == 0xFF01) {
-        // TODO: serial transfer
+        this->serial->setSB(val);
         return;
     }
     if (address == 0xFF02) {
-        // TODO: serial transfer
+        this->serial->setSC(val);
         return;
     }
     if (address == 0xFF07) {

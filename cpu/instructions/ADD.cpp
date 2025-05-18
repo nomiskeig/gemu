@@ -1,9 +1,11 @@
 #include "../Instruction.h"
 
-void ADD::execute(CPU *cpu) {
+int ADD::execute(CPU *cpu) {
+    int cycles = 0;
     switch (this->action) {
 
     case kADDRegToHL: {
+        cycles = 2;
         cpu->increasePC(1);
         cpu->set_reg16(kRegHL,
                        cpu->get_reg_16(kRegHL) + cpu->get_reg_16(this->reg16));
@@ -23,6 +25,7 @@ void ADD::execute(CPU *cpu) {
         break;
     }
     case kADDRegToA: {
+        cycles = 1;
         cpu->increasePC(1);
         cpu->set_Reg8(kRegA,
                       cpu->get_reg_8(kRegA) + cpu->get_reg_8(this->reg8));
@@ -41,6 +44,7 @@ void ADD::execute(CPU *cpu) {
         break;
     }
     case kADDN8ToA: {
+        cycles = 2;
         cpu->increasePC(2);
         if (cpu->get_reg_8(kRegA) + this->n8 > 0xFF) {
             cpu->set_flag(kFlagC);
@@ -62,6 +66,7 @@ void ADD::execute(CPU *cpu) {
     default:
         exit_with_error("ADD action not implemented");
     };
+    return cycles;
 }
 
 ADD::ADD(Reg16 reg) {

@@ -20,12 +20,14 @@ static void _setFlagH(CPU *cpu, uint8_t val) {
         cpu->clear_flag(kFlagH);
     }
 }
-void CP::execute(CPU *cpu) {
+int CP::execute(CPU *cpu) {
+    int cycles = 0;
     cpu->set_flag(kFlagN);
     switch (this->type) {
 
     case kN8: {
 
+        cycles = 2;
         this->cycles = 2;
         Reg8Val regA = cpu->get_reg_8(kRegA);
         uint8_t res = regA - this->n8;
@@ -36,6 +38,7 @@ void CP::execute(CPU *cpu) {
     default:
         exit_with_error("Unknown case in CP execute");
     }
+    return cycles;
 }
 
 CP::CP(N8 n8) {

@@ -30,6 +30,7 @@ static CPU * cpu;
 int callGraphFD;
 int highMemFD;
 int instructionsFD;
+int serialFD;
 
 /* This function runs once at startup. */
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
@@ -38,6 +39,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     callGraphFD = open("/home/simon/dev/gemu/callGraph.txt",O_WRONLY | O_CREAT |O_TRUNC, 0666);
     highMemFD = open("/home/simon/dev/gemu/highMemWrites.txt",O_WRONLY | O_CREAT | O_TRUNC, 0666);
     instructionsFD = open("/home/simon/dev/gemu/instructions.txt",O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    serialFD = open("/home/simon/dev/gemu/serial.txt", O_WRONLY |O_CREAT | O_TRUNC, 0666);
 
     SDL_SetAppMetadata("Example Renderer Primitives", "1.0", "com.example.renderer-primitives");
 
@@ -94,6 +96,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     SDL_FRect rect;
     Uint64 currentTime = SDL_GetTicks();
 
+    printf("starting to iterate\n");
     int currentFrame = 0;
     while (currentFrame < CYCLES_PER_FRAME) {
         cpu->tick();
@@ -136,9 +139,14 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     SDL_RenderDebugText(renderer, 0, 100, std::format("Frames: {}", 1000/(16 -(afterTime - currentTime))).c_str());
     SDL_RenderPresent(renderer);  /* put it all on the screen! */
 
+    printf("before delay with aftertime %lu and currentTime %lu\n", afterTime, currentTime);
+    if (afterTime - currentTime < 16) {
     SDL_Delay(16 - (afterTime - currentTime));
 
+    }
 
+
+    exit_with_error("successfully prjnted frame\n");
     return SDL_APP_CONTINUE;  /* carry on with the program! */
 }
 
