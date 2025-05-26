@@ -32,6 +32,7 @@ enum Reg8 {
     kRegC,
     kRegD,
     kRegE,
+    kRegF,
     kRegH,
     kRegL
 
@@ -52,6 +53,8 @@ class CPU {
     char *highMem;
     R16Val hl;
     StackPointer sp;
+    long totalTStates;
+    char* programPointer;
 
     int remainingTicksForInstruction;
     Instruction* currentInstruction;
@@ -66,7 +69,7 @@ class CPU {
     Serial *serial;
 
   public:
-    CPU(Disassembler *dis);
+    CPU(char* programPointer);
     void tick();
     void increasePC(int amount);
     void modifySP(int amount);
@@ -79,7 +82,7 @@ class CPU {
     FlagValue get_flag(Flag flag);
     void set_flag(Flag flag);
     void clear_flag(Flag flag);
-    void set_Reg8(Reg8 reg, Reg8Val value);
+    void set_Reg8(Reg8 reg, uint8_t value);
     void set_reg16(Reg16 reg, Reg16Val value);
     R16Val get_reg_16(Reg16 reg);
     Reg8Val get_reg_8(Reg8 reg);

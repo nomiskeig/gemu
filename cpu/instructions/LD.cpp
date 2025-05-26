@@ -2,31 +2,37 @@
 #include <ios>
 #include <sstream>
 
-void LD::execute(CPU *cpu) {
+int LD::execute(CPU *cpu) {
+    int res = 0;
     switch (this->action) {
     case kN8ToR8: {
+        res = 2;
         cpu->increasePC(2);
         cpu->set_Reg8(this->reg8, this->valN8);
         break;
     }
     case kN16ToR16: {
+        res = 3;
         cpu->set_reg16(this->reg16, this->valN16);
         cpu->increasePC(3);
 
         break;
     }
     case kAToA16: {
+        res = 4;
         cpu->write_memory(this->address, cpu->get_reg_8(kRegA));
 
         cpu->increasePC(3);
         break;
     }
     case kA16ToA: {
+        res = 4;
         cpu->set_Reg8(kRegA, cpu->read_memory(this->address));
         cpu->increasePC(3);
         break;
     }
     case kR16AddrToA: {
+        res = 2;
         cpu->increasePC(1);
         printf("read value %x from address %x\n",
                cpu->read_memory(cpu->get_reg_16(this->reg16)),
@@ -35,11 +41,13 @@ void LD::execute(CPU *cpu) {
         break;
     }
     case kAToReg16Addr: {
+        res = 2;
         cpu->increasePC(1);
         cpu->write_memory(cpu->get_reg_16(this->reg16), cpu->get_reg_8(kRegA));
         break;
     }
     case kRegToReg: {
+        res = 1;
         cpu->increasePC(1);
         printf("got 0x%hhx as the source value\n",
                cpu->get_reg_8(this->source));
@@ -47,27 +55,33 @@ void LD::execute(CPU *cpu) {
         break;
     }
     case kRegToHL: {
+        res = 2;
         cpu->increasePC(1);
         cpu->write_memory(cpu->get_reg_16(kRegHL), cpu->get_reg_8(this->reg8));
         break;
     }
     case kHLToReg: {
+
+        res = 2;
         cpu->increasePC(1);
         cpu->set_Reg8(this->reg8, cpu->read_memory(cpu->get_reg_16(kRegHL)));
         break;
     }
     case kAToHLInc:
+        res = 2;
         cpu->increasePC(1);
         cpu->write_memory(cpu->get_reg_16(kRegHL), cpu->get_reg_8(kRegA));
         cpu->set_reg16(kRegHL, cpu->get_reg_16(kRegHL) + 1);
         break;
     case kAToHLDec: {
+        res = 2;
         cpu->increasePC(1);
         cpu->write_memory(cpu->get_reg_16(kRegHL), cpu->get_reg_8(kRegA));
         cpu->set_reg16(kRegHL, cpu->get_reg_16(kRegHL) - 1);
         break;
     }
     case kHLToAInc: {
+        res = 2;
         cpu->increasePC(1);
         cpu->set_Reg8(kRegA, cpu->read_memory(cpu->get_reg_16(kRegHL)));
         cpu->set_reg16(kRegHL, cpu->get_reg_16(kRegHL) + 1);
@@ -81,6 +95,7 @@ void LD::execute(CPU *cpu) {
     default:
         exit_with_error("Found unsupported LD action");
     }
+    return res;
 }
 
 LD::LD(LDAction action, Reg8 reg, N8 value) {

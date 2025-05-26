@@ -3,21 +3,27 @@
 #include <ios>
 #include <sstream>
 
-void JR::execute(CPU *cpu) {
+int JR::execute(CPU *cpu) {
+    int res = 0;
     switch (this->action) {
     case kJRCond: {
+
         if (this->type == kJRCondNormal) {
 
             if (cpu->get_flag(this->flag) == kSet) {
+                res = 3;
                 cpu->increasePC(2 + this->offset);
             } else {
+                res = 2;
                 cpu->increasePC(2);
             }
         }
         if (this->type == kJRCondNot) {
             if (cpu->get_flag(this->flag) == kCleared) {
+                res = 3;
                 cpu->increasePC(2 + this->offset);
             } else {
+                res = 2;
                 cpu->increasePC(2);
             }
         }
@@ -25,11 +31,13 @@ void JR::execute(CPU *cpu) {
     }
 
     case kJRUncond: {
+        res = 3;
         cpu->increasePC(2 + this->offset);
 
         break;
     }
     }
+    return res;
 }
 static std::string jrCondTypeToName(JRCondType type) {
     switch (type) {

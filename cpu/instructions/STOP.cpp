@@ -1,7 +1,8 @@
 #include "../Instruction.h"
 
-void STOP::execute(CPU *cpu) {
+int STOP::execute(CPU *cpu) {
     cpu->increasePC(2);
+    return 1;
 
 }
 STOP::STOP(N8 val) {

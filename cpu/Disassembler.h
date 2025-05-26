@@ -13,5 +13,5 @@ class Disassembler {
 
   public:
     Disassembler(ProgramPointer pointer);
-    Instruction *getNextInstruction(uint16_t program_counter);
+    Instruction *getNextInstruction(uint16_t program_counter,char* memory);
 };

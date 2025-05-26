@@ -1,8 +1,10 @@
 #include "../Instruction.h"
 
-void SUB::execute(CPU *cpu) {
+int SUB::execute(CPU *cpu) {
+    int res = 0;
     switch (this->action) {
     case kSUBN8ToA: {
+        res = 2;
         cpu->increasePC(2);
         if (cpu->get_reg_8(kRegA) > this->n8) {
             cpu->set_flag(kFlagC);
@@ -26,10 +28,10 @@ void SUB::execute(CPU *cpu) {
     default:
         exit_with_error("SUB action not implemented");
     };
+    return res;
 }
 SUB::SUB(N8 n8) {
     this->n8 = n8;
-    this->text_string= "SUB";
+    this->text_string = "SUB";
     this->action = kSUBN8ToA;
-
 }

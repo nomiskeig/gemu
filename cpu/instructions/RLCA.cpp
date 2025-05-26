@@ -1,6 +1,6 @@
 #include "../Instruction.h"
 
-void RLCA::execute(CPU *cpu) {
+int RLCA::execute(CPU *cpu) {
     cpu->increasePC(1);
     cpu->clearAllFlags();
     int highest = cpu->get_reg_8(kRegA) & 0x80;
@@ -8,5 +8,6 @@ void RLCA::execute(CPU *cpu) {
     if (highest > 0) {
         cpu->set_flag(kFlagC);
     }
+    return 1;
 
 }

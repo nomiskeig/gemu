@@ -3,11 +3,13 @@
 #include <stdio.h>
 #define GEMU_LOG_DISASSEMBLER
 #define GEMU_DEBUG_CALL_GRAPH
+#define GEMU_DEBUG_MEM_WRITES
 #define GEMU_DEBUG_HIGHMEM_WRITES
 #define GEMU_DEBUG_INSTRUCTIONS
 extern int callGraphFD;
 extern int highMemFD;
 extern int instructionsFD;
+extern int memFD;
 #ifdef GEMU_DEBUG_CALL_GRAPH
 #define GEMU_PRINT_CALL_GRAPH(...) \
     dprintf(callGraphFD, __VA_ARGS__); \
@@ -21,6 +23,13 @@ extern int instructionsFD;
     dprintf(highMemFD, "\n");
 #else
 #define GEMU_PRINT_HIGHMEM_WRITES(...)
+#endif
+#ifdef GEMU_DEBUG_MEM_WRITES
+#define GEMU_PRINT_MEM_WRITES(...) \
+    dprintf(memFD, __VA_ARGS__); \
+    dprintf(memFD, "\n");
+#else
+#define GEMU_PRINT_MEM_WRITES(...)
 #endif
 #ifdef GEMU_DEBUG_INSTRUCTIONS
 #define GEMU_PRINT_INSTURUCTIONS(...) \

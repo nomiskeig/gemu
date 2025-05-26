@@ -1,9 +1,11 @@
 #include "../Instruction.h"
 
-void XOR::execute(CPU *cpu) {
+int XOR::execute(CPU *cpu) {
+    int res = 0;
     switch (this->action) {
 
     case kXORReg: {
+            res = 1;
         cpu->set_Reg8(kRegA, cpu->get_reg_8(kRegA) ^ cpu->get_reg_8(this->reg));
         cpu->clearAllFlags();
         if (cpu->get_reg_8(kRegA) == 0x0) {
@@ -15,6 +17,7 @@ void XOR::execute(CPU *cpu) {
         exit_with_error("XOR action not implemented");
     }
     };
+    return res;
 }
 
 

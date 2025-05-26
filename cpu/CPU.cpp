@@ -6,8 +6,9 @@
 #include <iostream>
 #include <unistd.h>
 
-CPU::CPU(Disassembler *dis) {
-    this->dis = dis;
+CPU::CPU(char *program_pointer) {
+    this->programPointer = program_pointer;
+    this->dis = new Disassembler((long)program_pointer);
     this->interrupts = new Interrupts();
     this->graphics = new Graphics();
     this->timer = new Timer();
@@ -16,25 +17,36 @@ CPU::CPU(Disassembler *dis) {
     this->highMem = (char *)malloc(0xFFFF - 0xFF80);
     this->remainingTicksForInstruction = 0;
     this->currentInstruction = NULL;
+    this->totalTStates = 0;
 
-    this->af = 0x100;
-    this->bc = 0xFF13;
-    this->de = 0x00C1;
-    this->hl = 0x8403;
+    this->af = 0x1180;
+    this->bc = 0x0000;
+    this->de = 0xFF56;
+    this->hl = 0x000D;
     this->pc = 0x100;
     this->sp = 0xFFFE;
 }
 
 void CPU::tick() {
     if (this->remainingTicksForInstruction == 0) {
-        this->currentInstruction = this->dis->getNextInstruction(this->pc);
+        this->currentInstruction =
+            this->dis->getNextInstruction(this->pc, this->memory);
         std::cout << "Instuction is "
                   << this->currentInstruction->getTextString() << "\n";
+        ProgramCounter old = this->pc;
         this->remainingTicksForInstruction =
             this->currentInstruction->execute(this);
-        ProgramCounter old = this->pc;
-        GEMU_PRINT_INSTURUCTIONS("Instruction is %s",
-                                 this->currentInstruction->getTextString().c_str());
+        this->totalTStates += this->remainingTicksForInstruction * 4;
+        GEMU_PRINT_INSTURUCTIONS(
+            "A: %02hhx F: %02hhx B: %02hhx C: %02hhx D: %02hhx E: %02hhx H: "
+            "%02hhx L: %02hhx "
+            "SP: %04x PC: %04x | %s | t-cyces: %li" ,
+            this->get_reg_8(kRegA), this->get_reg_8(kRegF),
+            this->get_reg_8(kRegB), this->get_reg_8(kRegC),
+            this->get_reg_8(kRegD), this->get_reg_8(kRegE),
+            this->get_reg_8(kRegH), this->get_reg_8(kRegL),
+            this->get_reg_16(kRegSP), old,
+            this->currentInstruction->getTextString().c_str(), this->totalTStates);
         if (old == this->pc) {
             exit_with_error("Forgot to increase pc");
         }
@@ -51,24 +63,22 @@ Reg8Val CPU::get_reg_8(Reg8 reg) {
     switch (reg) {
 
     case kRegA: {
-
         return this->af >> 0x8;
-        break;
     }
     case kRegB: {
         return this->bc >> 0x8;
-        break;
     }
     case kRegC: {
-
         return this->bc & 0xFF;
-        break;
     }
     case kRegD: {
         return this->de >> 0x8;
     }
     case kRegE: {
         return this->de & 0xFF;
+    }
+    case kRegF: {
+        return this->af & 0xFF;
     }
     case kRegH: {
         return this->hl >> 0x8;
@@ -129,6 +139,7 @@ void CPU::clear_flag(Flag flag) {
     this->af &= ~(0x1 << index);
 }
 void CPU::set_flag(Flag flag) {
+
     int index = get_flag_index(flag);
     this->af |= 0x1 << index;
 }
@@ -197,12 +208,12 @@ std::string flagToName(Flag flag) {
         break;
     }
 }
-void CPU::set_Reg8(Reg8 reg, N8 val) {
+void CPU::set_Reg8(Reg8 reg, uint8_t val) {
     switch (reg) {
 
     case kRegA: {
         printf("setting reg A to val %hhx\n", val);
-        this->af &= 0x0FF;
+        this->af &= 0x00FF;
         this->af |= val << 0x8;
         break;
     }
@@ -229,7 +240,7 @@ void CPU::set_Reg8(Reg8 reg, N8 val) {
         break;
     }
     case kRegH: {
-        this->hl &= 0x0FF;
+        this->hl &= 0x00FF;
         this->hl |= val << 0x08;
         break;
     }
@@ -270,7 +281,10 @@ void CPU::set_reg16(Reg16 reg, N16 val) {
     }
 }
 N8 CPU::read_memory(A16 address) {
-    if (address >= 0x0 && address < 0xFF00) {
+    if (address >= 0x0 && address < 0xC000) {
+        return *(this->programPointer + address);
+    }
+    if (address >= 0xC000 && address < 0xFF00) {
         return *(this->memory + address);
     }
     if (address >= 0xFF80 && address < 0xFFFF) {
@@ -286,7 +300,8 @@ N8 CPU::read_memory(A16 address) {
 }
 
 void CPU::write_memory(A16 address, N8 val) {
-    if (address >= 0x0 && address < 0xFF00) {
+    if (address >= 0xC000 && address < 0xFF00) {
+        GEMU_PRINT_MEM_WRITES("0x%x = 0x%hhx", address, val);
         *(this->memory + address) = val;
         return;
     }
@@ -367,7 +382,9 @@ void CPU::write_memory(A16 address, N8 val) {
 void CPU::modifySP(int amount) { this->sp += amount; }
 StackPointer CPU::getSP() { return this->sp; }
 void CPU::print() {
+
     std::cout << "CPU state:\n";
+
     std::cout << "PC: " << this->pc << "\n";
     std::cout << "SP: " << this->sp << "\n";
     std::cout << "AF: " << this->af << "\n";
@@ -378,4 +395,5 @@ void CPU::print() {
               << ", N: " << this->get_flag(kFlagN)
               << ", H: " << this->get_flag(kFlagH)
               << ", C: " << this->get_flag(kFlagC) << "\n";
+    std::cout << "T-Cycles: " << this->totalTStates << "\n";
 }

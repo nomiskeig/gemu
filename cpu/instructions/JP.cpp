@@ -2,19 +2,23 @@
 #include <ios>
 #include <sstream>
 
-void JP::execute(CPU *cpu) {
+int JP::execute(CPU *cpu) {
+    int res = 0;
     switch (this->action) {
     case kJPPC: {
+        res = 4;
         cpu->setPC(this->pc);
         break;
     }
     case kJPHL: {
+        res = 1;
         cpu->setPC(cpu->get_reg_16(kRegHL));
-            break;
+        break;
     }
     default:
         exit_with_error("JP action not implemented");
     }
+    return res;
 }
 
 JP::JP(ProgramCounter pc) {

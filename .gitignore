@@ -5,7 +5,12 @@ instructions.txt
 *.so*
 gemu
 output.txt
+out.txt
 CMakeCache.txt
 cmake_install.cmake
 callGraph.txt
+serial.txt
+memWrites.txt
+gemu
+Makefile
 

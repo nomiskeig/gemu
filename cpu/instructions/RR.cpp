@@ -2,7 +2,7 @@
 #include <ios>
 #include <sstream>
 
-void RR::execute(CPU *cpu) {
+int RR::execute(CPU *cpu) {
     cpu->increasePC(2);
     N8 temp = cpu->get_flag(kFlagC);
     cpu->clearAllFlags();
@@ -13,6 +13,7 @@ void RR::execute(CPU *cpu) {
     if (cpu->get_reg_8(this->reg) == 0x0) {
         cpu->set_flag(kFlagZ);
     }
+    return 2;
 }
 
 RR::RR(Reg8 reg) {

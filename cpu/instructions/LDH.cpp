@@ -1,7 +1,7 @@
 #include "../Instruction.h"
 #include <sstream>
 
-void LDH::execute(CPU *cpu) {
+int LDH::execute(CPU *cpu) {
     switch (this->action) {
 
     case kLDHAToAddress: {
@@ -13,12 +13,13 @@ void LDH::execute(CPU *cpu) {
     }
     case kLDHAddressToA: {
         cpu->set_Reg8(kRegA, cpu->read_memory(0xFF + this->address));
-            cpu->increasePC(2);
-            break;
+        cpu->increasePC(2);
+        break;
     }
     default:
         exit_with_error("LDH case not implemented");
     }
+    return 3;
 }
 LDH::LDH(LDHAction action, A8 address) {
     this->address = address;

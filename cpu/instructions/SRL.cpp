@@ -3,7 +3,7 @@
 #include <ios>
 #include <sstream>
 
-void SRL::execute(CPU *cpu) {
+int SRL::execute(CPU *cpu) {
     cpu->increasePC(2);
     cpu->clearAllFlags();
     if (cpu->get_reg_8(this->reg) & 0x1) {
@@ -13,6 +13,7 @@ void SRL::execute(CPU *cpu) {
     if (cpu->get_reg_8(this->reg) == 0x0) {
         cpu->set_flag(kFlagZ);
     }
+    return 2;
 }
 
 SRL::SRL(Reg8 reg) {

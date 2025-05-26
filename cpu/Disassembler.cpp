@@ -22,12 +22,18 @@ static Instruction *disassemble_prefix(long address) {
     exit_with_error("Could not decode prefixed instruction");
 }
 
-Instruction *Disassembler::getNextInstruction(uint16_t counter) {
+Instruction *Disassembler::getNextInstruction(uint16_t counter, char *memory) {
     printf("Counter is %hx\n", counter);
-    printf("Address is %lx\n", (program_pointer + counter));
-    printf("Value is 0x%hhx\n", read_8(program_pointer + counter));
-    long address = program_pointer + counter;
-    Byte value = read_8(address);
+    long address;
+    Byte value;
+    if (counter < 0xC000) {
+        address = program_pointer + counter;
+    } else {
+        address = (long)memory + counter;
+    }
+    printf("Address is %lx\n", address);
+    value = read_8(address);
+    printf("Value is 0x%hhx\n", value);
     if (value == 0x0) {
         return new NOP();
     }
@@ -44,7 +50,7 @@ Instruction *Disassembler::getNextInstruction(uint16_t counter) {
         return new DEC(kRegB);
     }
     if (value == 0x06) {
-        return new LD(kN8ToR8, kRegB, read_8(address+ 1));
+        return new LD(kN8ToR8, kRegB, read_8(address + 1));
     }
     if (value == 0x07) {
         return new RLCA();
@@ -140,12 +146,15 @@ Instruction *Disassembler::getNextInstruction(uint16_t counter) {
     if (value == 0x40) {
         return new LD(kRegToReg, kRegB, kRegB);
     }
+    if (value == 0x45) {
+        return new LD(kRegToReg, kRegL, kRegB);
+
+    }
     if (value == 0x47) {
-        return new LD(kRegToReg,kRegA, kRegB);
+        return new LD(kRegToReg, kRegA, kRegB);
     }
     if (value == 0x50) {
         return new LD(kRegToReg, kRegB, kRegD);
-
     }
     if (value == 0x54) {
         return new LD(kRegToReg, kRegH, kRegD);
@@ -173,7 +182,6 @@ Instruction *Disassembler::getNextInstruction(uint16_t counter) {
     }
     if (value == 0x6E) {
         return new LD(kHLToReg, kRegL);
-
     }
     if (value == 0x6F) {
         return new LD(kRegToReg, kRegA, kRegL);

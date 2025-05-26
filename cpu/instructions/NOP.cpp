@@ -1,7 +1,8 @@
 #include "../Instruction.h"
 
-void NOP::execute(CPU *cpu) {
+int NOP::execute(CPU *cpu) {
     cpu->increasePC(1);
+    return 1;
 
 }
 

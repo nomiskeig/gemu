@@ -1,9 +1,10 @@
 #include "../Instruction.h"
 
-void OR::execute(CPU *cpu) {
+int OR::execute(CPU *cpu) {
+    int res = 0;
     switch (this->action) {
     case kORAReg: {
-            printf("got value of A: 0x%x and value of reg: 0x%x", cpu->get_reg_8(kRegA), cpu->get_reg_8(this->reg));
+        res = 1;
         cpu->set_Reg8(kRegA, cpu->get_reg_8(kRegA) | cpu->get_reg_8(this->reg));
         cpu->clearAllFlags();
         if (cpu->get_reg_8(kRegA) == 0x0) {
@@ -16,11 +17,11 @@ void OR::execute(CPU *cpu) {
     default:
         exit_with_error("OR action not implemented");
     }
+    return res;
 }
-
 
 OR::OR(Reg8 reg) {
     this->reg = reg;
-    this->text_string=  "OR";
+    this->text_string = "OR";
     this->action = kORAReg;
 }

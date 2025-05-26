@@ -3,15 +3,19 @@
 #include "../../config.h"
 #include "../Instruction.h"
 
-void RET::execute(CPU *cpu) {
+int RET::execute(CPU *cpu) {
+    int res = 0;
     switch (this->action) {
 
     case kRETCond: {
         cpu->increasePC(1);
+        res = 2;
         if ((cpu->get_flag(this->flag) == kSet &&
+
              this->type == kRETCondNormal) ||
             (cpu->get_flag(this->flag) == kCleared &&
              this->type == kRETCondNot)) {
+            res = 5;
             ProgramCounter pc =
                 cpu->read_memory(cpu->get_reg_16(kRegSP)) & 0xFF;
             cpu->modifySP(1);
@@ -23,6 +27,7 @@ void RET::execute(CPU *cpu) {
         break;
     }
     case kRetUncond: {
+        res = 4;
         ProgramCounter pc = cpu->read_memory(cpu->get_reg_16(kRegSP)) & 0xFF;
         cpu->modifySP(1);
         pc |= cpu->read_memory(cpu->get_reg_16(kRegSP)) << 0x08;
@@ -34,6 +39,7 @@ void RET::execute(CPU *cpu) {
     default:
         exit_with_error("Ret action not implemented");
     }
+    return res;
 }
 
 RET::RET(Flag flag, RETCondType type) {
